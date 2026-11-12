@@ -1,0 +1,333 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR宝箱ゲーム</title>
+
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        #hud {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+        }
+
+        button {
+            padding: 12px 18px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            background: #ffc107;
+            color: black;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #888;
+            cursor: not-allowed;
+        }
+
+        #reset {
+            background: #4caf50;
+            color: white;
+        }
+
+        #result {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="hud">
+        <h2>AR宝箱ゲーム</h2>
+        <p>当たりの宝箱を選んでください！</p>
+
+        <div>
+            <button class="choice" onclick="choose(1)">宝箱 1</button>
+            <button class="choice" onclick="choose(2)">宝箱 2</button>
+            <button class="choice" onclick="choose(3)">宝箱 3</button>
+        </div>
+
+        <div id="result">ゲームスタート！</div>
+
+        <button id="reset" onclick="resetGame()">
+            もう一度
+        </button>
+    </div>
+
+    <a-scene
+        embedded
+        arjs="sourceType: webcam; debugUIEnabled: false;"
+        renderer="logarithmicDepthBuffer: true;"
+        vr-mode-ui="enabled: false">
+
+        <a-marker preset="hiro">
+
+            <a-entity id="chest1" position="-0.65 0 0">
+                <a-box
+                    position="0 0.18 0"
+                    color="#8B4513"
+                    scale="0.45 0.35 0.35">
+                </a-box>
+
+                <a-entity class="lid" position="0 0.36 -0.16">
+                    <a-box
+                        position="0 0 0.16"
+                        color="#A0522D"
+                        scale="0.48 0.12 0.38">
+                    </a-box>
+                    <a-box
+                        position="0 0.07 0.16"
+                        color="#FFD700"
+                        scale="0.5 0.04 0.05">
+                    </a-box>
+                </a-entity>
+
+                <a-box
+                    position="0 0.18 0.18"
+                    color="#FFD700"
+                    scale="0.1 0.12 0.02">
+                </a-box>
+
+                <a-text
+                    value="1"
+                    position="0 0.65 0"
+                    align="center"
+                    color="white"
+                    width="2">
+                </a-text>
+            </a-entity>
+
+            <a-entity id="chest2" position="0 0 0">
+                <a-box
+                    position="0 0.18 0"
+                    color="#8B4513"
+                    scale="0.45 0.35 0.35">
+                </a-box>
+
+                <a-entity class="lid" position="0 0.36 -0.16">
+                    <a-box
+                        position="0 0 0.16"
+                        color="#A0522D"
+                        scale="0.48 0.12 0.38">
+                    </a-box>
+                    <a-box
+                        position="0 0.07 0.16"
+                        color="#FFD700"
+                        scale="0.5 0.04 0.05">
+                    </a-box>
+                </a-entity>
+
+                <a-box
+                    position="0 0.18 0.18"
+                    color="#FFD700"
+                    scale="0.1 0.12 0.02">
+                </a-box>
+
+                <a-text
+                    value="2"
+                    position="0 0.65 0"
+                    align="center"
+                    color="white"
+                    width="2">
+                </a-text>
+            </a-entity>
+
+            <a-entity id="chest3" position="0.65 0 0">
+                <a-box
+                    position="0 0.18 0"
+                    color="#8B4513"
+                    scale="0.45 0.35 0.35">
+                </a-box>
+
+                <a-entity class="lid" position="0 0.36 -0.16">
+                    <a-box
+                        position="0 0 0.16"
+                        color="#A0522D"
+                        scale="0.48 0.12 0.38">
+                    </a-box>
+                    <a-box
+                        position="0 0.07 0.16"
+                        color="#FFD700"
+                        scale="0.5 0.04 0.05">
+                    </a-box>
+                </a-entity>
+
+                <a-box
+                    position="0 0.18 0.18"
+                    color="#FFD700"
+                    scale="0.1 0.12 0.02">
+                </a-box>
+
+                <a-text
+                    value="3"
+                    position="0 0.65 0"
+                    align="center"
+                    color="white"
+                    width="2">
+                </a-text>
+            </a-entity>
+
+        </a-marker>
+
+        <a-entity camera></a-entity>
+
+    </a-scene>
+
+    <script>
+        let winningChest = Math.floor(Math.random() * 3) + 1;
+        let gameFinished = false;
+        let audioContext;
+
+        function playSound(win) {
+            try {
+                audioContext = audioContext || new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+
+                if (audioContext.state === "suspended") {
+                    audioContext.resume();
+                }
+
+                const oscillator = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+
+                oscillator.connect(gain);
+                gain.connect(audioContext.destination);
+
+                oscillator.type = "sine";
+                oscillator.frequency.setValueAtTime(
+                    win ? 600 : 200,
+                    audioContext.currentTime
+                );
+
+                oscillator.frequency.exponentialRampToValueAtTime(
+                    win ? 1000 : 100,
+                    audioContext.currentTime + 0.3
+                );
+
+                gain.gain.setValueAtTime(
+                    0.2,
+                    audioContext.currentTime
+                );
+
+                gain.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    audioContext.currentTime + 0.4
+                );
+
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.4);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        function choose(number) {
+            if (gameFinished) return;
+
+            gameFinished = true;
+
+            const chest = document.getElementById("chest" + number);
+            const lid = chest.querySelector(".lid");
+            const result = document.getElementById("result");
+
+            lid.setAttribute("animation", {
+                property: "rotation",
+                to: "-110 0 0",
+                dur: 800,
+                easing: "easeOutQuad"
+            });
+
+            if (number === winningChest) {
+                result.textContent = "大当たり！おめでとう！";
+                result.style.color = "#FFD700";
+
+                const treasure = document.createElement("a-sphere");
+                treasure.setAttribute("radius", "0.13");
+                treasure.setAttribute("color", "#FFD700");
+                treasure.setAttribute("position", "0 0.35 0");
+
+                treasure.setAttribute("animation", {
+                    property: "position",
+                    to: "0 0.85 0",
+                    dur: 1000,
+                    loop: true,
+                    dir: "alternate"
+                });
+
+                chest.appendChild(treasure);
+
+                playSound(true);
+            } else {
+                result.textContent =
+                    "はずれ！当たりは宝箱 " + winningChest + " でした！";
+
+                result.style.color = "#FF5252";
+                playSound(false);
+            }
+
+            document.querySelectorAll(".choice").forEach(button => {
+                button.disabled = true;
+            });
+        }
+
+        function resetGame() {
+            winningChest = Math.floor(Math.random() * 3) + 1;
+            gameFinished = false;
+
+            const result = document.getElementById("result");
+            result.textContent = "ゲームスタート！";
+            result.style.color = "white";
+
+            for (let i = 1; i <= 3; i++) {
+                const chest = document.getElementById("chest" + i);
+                const lid = chest.querySelector(".lid");
+
+                lid.removeAttribute("animation");
+                lid.setAttribute("rotation", "0 0 0");
+
+                const treasure = chest.querySelector("a-sphere");
+                if (treasure) {
+                    treasure.remove();
+                }
+            }
+
+            document.querySelectorAll(".choice").forEach(button => {
+                button.disabled = false;
+            });
+        }
+    </script>
+
+</body>
+</html>
